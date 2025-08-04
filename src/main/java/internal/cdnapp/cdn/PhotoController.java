@@ -7,6 +7,7 @@ import internal.cdnapp.cdn.repository.CdnUrlRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -38,21 +41,30 @@ public class PhotoController {
         this.cdnUrlRepository = cdnUrlRepository;
     }
 
-
+    // curl -F "file=@./meow.webp" http://localhost:8080/photo Comando para subir la foto para pruebas
     @PostMapping("/photo")
-    public ResponseEntity<String> addPhoto(@RequestParam String fileName) {
-        UUID uuid = UUID.randomUUID();
-        String publicUrl = domainService.getDomain() + "/photo/" + uuid;
+    public ResponseEntity<String> addPhoto(@RequestParam("file") MultipartFile file) throws IOException {
+        try {
+            UUID uuid = UUID.randomUUID();
+            String fileName = file.getOriginalFilename();
 
-        CdnUrl cdnUrl = new CdnUrl();
-        cdnUrl.setName(uuid.toString());
-        cdnUrl.setUrl(publicUrl);
-        cdnUrl.setFilePath(fileName);
-        cdnUrl.setUpDate(LocalDate.now());
+            Path destinationFile = photoStorageService.getRootLocation().resolve(fileName);
+            Files.copy(file.getInputStream(),destinationFile );
 
-        cdnUrlRepository.save(cdnUrl);
+            String publicUrl = domainService.getDomain() + "/photo/" + uuid;
 
-        return ResponseEntity.ok(publicUrl);
+            CdnUrl cdnUrl = new CdnUrl();
+            cdnUrl.setName(uuid.toString());
+            cdnUrl.setUrl(publicUrl);
+            cdnUrl.setFilePath(fileName);
+            cdnUrl.setUpDate(LocalDate.now());
+
+            cdnUrlRepository.save(cdnUrl);
+
+            return ResponseEntity.ok(publicUrl);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload image failed" + e.getMessage());
+        }
     }
 
     @GetMapping("/photo/{uuid}")
