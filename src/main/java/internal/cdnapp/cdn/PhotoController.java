@@ -55,7 +55,7 @@ public class PhotoController {
 
             CdnUrl cdnUrl = new CdnUrl();
             cdnUrl.setUuid(uuid);
-            cdnUrl.setName(uuid.toString());
+            cdnUrl.setName(fileName);
             cdnUrl.setUrl(publicUrl);
             cdnUrl.setFilePath(fileName);
             cdnUrl.setUpDate(LocalDate.now());
