@@ -23,7 +23,7 @@ public class SearchController {
 
     @GetMapping("/photo/url")
     public ResponseEntity<String> getPhotoUrl(@RequestParam String name) {
-        Optional<CdnUrl> cdnUrl = cdnUrlRepository.findById(name);
+        Optional<CdnUrl> cdnUrl = cdnUrlRepository.findByName(name);
 
         if (cdnUrl.isPresent()) {
             return ResponseEntity.ok(cdnUrl.get().getUrl());

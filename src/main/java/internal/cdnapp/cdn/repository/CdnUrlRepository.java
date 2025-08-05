@@ -3,4 +3,9 @@ package internal.cdnapp.cdn.repository;
 import internal.cdnapp.cdn.entity.CdnUrl;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CdnUrlRepository extends JpaRepository<CdnUrl, String> {}
+import java.util.Optional;
+import java.util.UUID;
+
+public interface CdnUrlRepository extends JpaRepository<CdnUrl, UUID> {
+    Optional<CdnUrl> findByName(String name);
+}

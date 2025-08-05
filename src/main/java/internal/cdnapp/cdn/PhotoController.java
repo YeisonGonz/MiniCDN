@@ -54,6 +54,7 @@ public class PhotoController {
             String publicUrl = domainService.getDomain() + "/photo/" + uuid;
 
             CdnUrl cdnUrl = new CdnUrl();
+            cdnUrl.setUuid(uuid);
             cdnUrl.setName(uuid.toString());
             cdnUrl.setUrl(publicUrl);
             cdnUrl.setFilePath(fileName);
@@ -68,7 +69,7 @@ public class PhotoController {
     }
 
     @GetMapping("/photo/{uuid}")
-    public ResponseEntity<Resource> serveFile(@PathVariable String uuid) {
+    public ResponseEntity<Resource> serveFile(@PathVariable UUID uuid) {
         String fileName;
         Optional<CdnUrl> cdnUrl = cdnUrlRepository.findById(uuid);
 

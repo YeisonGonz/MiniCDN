@@ -4,12 +4,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "cdnUrl")
 public class CdnUrl {
 
     @Id
+    private UUID uuid;
+
     private String name;
 
     private String url;
@@ -50,5 +53,13 @@ public class CdnUrl {
 
     public void setUpDate(LocalDate upDate) {
         this.upDate = upDate;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 }
