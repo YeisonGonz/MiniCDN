@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -28,13 +29,21 @@ public class SearchController {
 
     @PostMapping("/photo/url")
     public ResponseEntity<String> getPhotoUrl(@RequestParam String name) {
+        LocalDateTime expireDate;
+
         if(redisService.get(name) != null) {
             return ResponseEntity.status(HttpStatus.OK).body(redisService.get(name));
         }
-
         Optional<CdnUrl> cdnUrl = cdnUrlRepository.findByName(name);
 
         if (cdnUrl.isPresent()) {
+            expireDate = cdnUrl.get().getExpireDateTime();
+
+            if (expireDate != null && expireDate.isBefore(LocalDateTime.now())) {
+                redisService.del(name);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("That content expired");
+            }
+
             redisService.set(name, cdnUrl.get().getUrl());
             return ResponseEntity.ok(cdnUrl.get().getUrl());
         } else {

@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,9 @@ public class CdnUrl {
 
     private String filePath;
 
-    private LocalDate upDate;
+    private LocalDateTime upDate;
+
+    private LocalDateTime  expireDateTime;
 
     // Getters y Setters
 
@@ -47,11 +50,11 @@ public class CdnUrl {
         this.filePath = filePath;
     }
 
-    public LocalDate getUpDate() {
+    public LocalDateTime getUpDate() {
         return upDate;
     }
 
-    public void setUpDate(LocalDate upDate) {
+    public void setUpDate(LocalDateTime upDate) {
         this.upDate = upDate;
     }
 
@@ -61,5 +64,14 @@ public class CdnUrl {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+
+    public LocalDateTime getExpireDateTime() {
+        return expireDateTime;
+    }
+
+    public void setExpireDateTime(LocalDateTime expireDateTime) {
+        this.expireDateTime = expireDateTime;
     }
 }

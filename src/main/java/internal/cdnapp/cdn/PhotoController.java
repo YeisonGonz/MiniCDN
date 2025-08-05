@@ -2,11 +2,13 @@ package internal.cdnapp.cdn;
 
 import internal.cdnapp.cdn.components.DomainService;
 import internal.cdnapp.cdn.components.PhotoStorageService;
+import internal.cdnapp.cdn.components.RedisService;
 import internal.cdnapp.cdn.entity.CdnUrl;
 import internal.cdnapp.cdn.repository.CdnUrlRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
@@ -21,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,18 +35,25 @@ public class PhotoController {
     private final PhotoStorageService photoStorageService;
     private final DomainService domainService;
     private final CdnUrlRepository cdnUrlRepository;
+    private final RedisService redisService;
 
     public PhotoController(PhotoStorageService photoStorageService,
                            DomainService domainService,
-                           CdnUrlRepository cdnUrlRepository) {
+                           CdnUrlRepository cdnUrlRepository,
+                           RedisService redisService) {
         this.photoStorageService = photoStorageService;
         this.domainService = domainService;
         this.cdnUrlRepository = cdnUrlRepository;
+        this.redisService = redisService;
     }
 
     // curl -F "file=@./meow.webp" http://localhost:8080/photo Comando para subir la foto para pruebas
     @PostMapping("/photo")
-    public ResponseEntity<String> addPhoto(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<String> addPhoto(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "expireAt", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expireAt
+    ) throws IOException {
         try {
             UUID uuid = UUID.randomUUID();
             String fileName = file.getOriginalFilename();
@@ -58,7 +68,11 @@ public class PhotoController {
             cdnUrl.setName(fileName);
             cdnUrl.setUrl(publicUrl);
             cdnUrl.setFilePath(fileName);
-            cdnUrl.setUpDate(LocalDate.now());
+            cdnUrl.setUpDate(LocalDateTime.now());
+
+            if (expireAt != null) {
+                cdnUrl.setExpireDateTime(expireAt);
+            }
 
             cdnUrlRepository.save(cdnUrl);
 
@@ -71,12 +85,21 @@ public class PhotoController {
     @GetMapping("/photo/{uuid}")
     public ResponseEntity<Resource> serveFile(@PathVariable UUID uuid) {
         String fileName;
+        LocalDateTime expireDateTime;
+        String name;
         Optional<CdnUrl> cdnUrl = cdnUrlRepository.findById(uuid);
 
         if (cdnUrl.isPresent()) {
+            name =  cdnUrl.get().getName();
+            expireDateTime = cdnUrl.get().getExpireDateTime();
             fileName = cdnUrl.get().getFilePath();
         }else{
             return ResponseEntity.notFound().build();
+        }
+
+        if (expireDateTime != null && expireDateTime.isBefore(LocalDateTime.now())) {
+            redisService.del(name);
+            return ResponseEntity.status(HttpStatus.LOCKED).body(null);
         }
 
       try{
