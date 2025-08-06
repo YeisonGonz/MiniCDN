@@ -21,11 +21,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,8 +55,13 @@ public class PhotoController {
             UUID uuid = UUID.randomUUID();
             String fileName = file.getOriginalFilename();
 
-            Path destinationFile = photoStorageService.getRootLocation().resolve(fileName);
-            Files.copy(file.getInputStream(),destinationFile );
+            // Creo el directorio con el UUID
+            Path uuidDirectory = photoStorageService.getRootLocation().resolve(uuid.toString());
+            Files.createDirectories(uuidDirectory);
+
+            // Guardo el archivo en el directorio
+            Path destinationFile = uuidDirectory.resolve(fileName);
+            Files.copy(file.getInputStream(),destinationFile, StandardCopyOption.REPLACE_EXISTING);
 
             String publicUrl = domainService.getDomain() + "/photo/" + uuid;
 
@@ -67,7 +69,7 @@ public class PhotoController {
             cdnUrl.setUuid(uuid);
             cdnUrl.setName(fileName);
             cdnUrl.setUrl(publicUrl);
-            cdnUrl.setFilePath(fileName);
+            cdnUrl.setFilePath(uuid.toString()+"/"+fileName);
             cdnUrl.setUpDate(LocalDateTime.now());
 
             if (expireAt != null) {
@@ -86,11 +88,9 @@ public class PhotoController {
     public ResponseEntity<Resource> serveFile(@PathVariable UUID uuid) {
         String fileName;
         LocalDateTime expireDateTime;
-        String name;
         Optional<CdnUrl> cdnUrl = cdnUrlRepository.findById(uuid);
 
         if (cdnUrl.isPresent()) {
-            name =  cdnUrl.get().getName();
             expireDateTime = cdnUrl.get().getExpireDateTime();
             fileName = cdnUrl.get().getFilePath();
         }else{
@@ -98,7 +98,7 @@ public class PhotoController {
         }
 
         if (expireDateTime != null && expireDateTime.isBefore(LocalDateTime.now())) {
-            redisService.del(name);
+            redisService.del(uuid.toString());
             return ResponseEntity.status(HttpStatus.LOCKED).body(null);
         }
 
