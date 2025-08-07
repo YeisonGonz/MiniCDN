@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres_db_cdn
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: defaultuser
+      POSTGRES_PASSWORD: defaultpass
+      POSTGRES_DB: cdndatabase
+    volumes:
+      - data:/var/lib/postgresql/data
+
+  redis:
+    container_name: redis_cdn
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  springboot:
+    container_name: springboot_cdn
+    image: openjdk:17-jdk-slim
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./build/libs/:/app
+    working_dir: /app
+    command: ["java", "-jar", "cdn-0.0.1-SNAPSHOT.jar"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cdndatabase
+      SPRING_DATASOURCE_USERNAME: defaultuser
+      SPRING_DATASOURCE_PASSWORD: defaultpass
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SECURITY_API_KEY: clave-secreta-super-segura
+
+volumes:
+  data:
+    driver: local
+  redis_data:
+    driver: local

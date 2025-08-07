@@ -1,6 +1,6 @@
 # Lista de las Features que quiero meter
 
-#### Mapear el endpoint de error de SpringBoot (/error)
+#### Mapear el endpoint de error de SpringBoot (/error) | Hecho
 #### Crear el sistema de seguridad
 
 La idea principal seria crear una MASTER API KEY al momento de arrancar la aplicacion la primera vez,
