@@ -43,6 +43,7 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       SECURITY_API_KEY: clave-secreta-super-segura
+      CDNAPP_DOMAIN: http://cdn.local
 
 volumes:
   data:
