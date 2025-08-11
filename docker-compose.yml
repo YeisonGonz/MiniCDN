@@ -34,6 +34,7 @@ services:
       - "8080:8080"
     volumes:
       - ./build/libs/:/app
+      - storage_data:/storage
     working_dir: /app
     command: ["java", "-jar", "cdn-1.0.0.jar"] # Aquí agregar el nombre del proyecto compilado
     environment:
@@ -51,4 +52,6 @@ volumes:
   data:
     driver: local
   redis_data:
+    driver: local
+  storage_data:
     driver: local
