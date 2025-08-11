@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -117,5 +118,39 @@ public class PhotoController {
       } catch (MalformedURLException e) {
           throw new RuntimeException(e);
       }
+    }
+
+    @GetMapping("/photoall")
+    public ResponseEntity<List<CdnUrl>> getAllPhotos() {
+        return ResponseEntity.ok(cdnUrlRepository.findAll());
+    }
+
+    // Es un metodo por la risas, el metodo normal es consumir el metodo de arriba en un frontend
+    @GetMapping(value = "/photoall2", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> getAllPhotosParsed() {
+        List<CdnUrl> cdnUrls = cdnUrlRepository.findAll();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html><head><meta charset='UTF-8'><title>Todas las fotos</title></head><body>");
+        sb.append("<table border='1'><thead><tr>")
+                .append("<th>UUID</th><th>Name</th><th>URL</th><th>FilePath</th><th>UpDate</th><th>expireDateTime</th>")
+                .append("</tr></thead><tbody>");
+
+        for (CdnUrl cdnUrl : cdnUrls) {
+            sb.append("<tr>")
+                    .append("<td>").append(cdnUrl.getUuid()).append("</td>")
+                    .append("<td>").append(cdnUrl.getName()).append("</td>")
+                    .append("<td>").append("<a href='").append(cdnUrl.getUrl()).append("'>Link</a>").append("</td>")
+                    .append("<td>").append(cdnUrl.getFilePath()).append("</td>")
+                    .append("<td>").append(cdnUrl.getUpDate()).append("</td>")
+                    .append("<td>").append(cdnUrl.getExpireDateTime()).append("</td>")
+                    .append("</tr>");
+        }
+
+        sb.append("</tbody></table></body></html>");
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(sb.toString());
     }
 }

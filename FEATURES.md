@@ -8,4 +8,11 @@ luego ofrecer la posibilidad de poder crear mas para aplicaciones especificas (p
 sera necesario usar la MASTER API KEY)
 
 #### Dockerizar TODO | Hecho
+
+---
+
+### Agregar un ENDPOINT para poder ver todas las fotos subidas a la aplicacion
+
+Algo sencillo que me muestre el uuid, el nombre de la foto, fecha de expiracion, url de acceso etc....
+
 #### Hacer la documentacion (pereza absolutaaaaaaaa)
