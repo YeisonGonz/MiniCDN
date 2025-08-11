@@ -40,6 +40,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cdndatabase
       SPRING_DATASOURCE_USERNAME: defaultuser
       SPRING_DATASOURCE_PASSWORD: defaultpass
+      SPRING_MAX_FILE_SIZE: 20MB
+      SPRING_MAX_REQUEST_SIZE: 20MB
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       SECURITY_API_KEY: clave-secreta-super-segura
