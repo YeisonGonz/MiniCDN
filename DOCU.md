@@ -95,7 +95,7 @@ Extiende `JpaRepository<CdnUrl, UUID>` e incluye:
 
 **Ejemplo `curl`:**
 ```bash
-curl -F "file=@./image.jpg" -F "expireAt=2025-08-15T12:00:00" http://localhost:8080/photo
+curl -F "file=@./image.jpg" -F "expireAt=2025-08-15T12:00:00" -H "x-api-key: clave-secreta-super-segura" http://localhost:8080/photo
 ```
 
 ### 6.2 Obtener imagen por UUID

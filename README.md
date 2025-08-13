@@ -136,7 +136,7 @@ Parámetros:
 Ejemplo:
 
 ```bash
-curl -F "file=@./image.png" -F "expireAt=2025-08-15T12:00:00" http://localhost:8080/photo
+curl -F "file=@./image.png" -F "expireAt=2025-08-15T12:00:00" -H "x-api-key: clave-secreta-super-segura" http://localhost:8080/photo
 ```
 
 ### 2️⃣ Obtener imagen por UUID
