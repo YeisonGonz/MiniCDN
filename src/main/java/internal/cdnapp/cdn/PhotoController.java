@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +48,7 @@ public class PhotoController {
 
     // curl -F "file=@./meow.webp" http://localhost:8080/photo Comando para subir la foto para pruebas
     @PostMapping("/photo")
-    public ResponseEntity<String> addPhoto(
+    public ResponseEntity<Object> addPhoto(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "expireAt", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expireAt
@@ -79,7 +80,7 @@ public class PhotoController {
 
             cdnUrlRepository.save(cdnUrl);
 
-            return ResponseEntity.ok(publicUrl);
+            return ResponseEntity.ok().body(Map.of("url", publicUrl));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload image failed" + e.getMessage());
         }
