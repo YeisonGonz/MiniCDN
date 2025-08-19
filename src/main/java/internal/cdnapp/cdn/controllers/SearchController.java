@@ -1,18 +1,16 @@
-package internal.cdnapp.cdn;
+package internal.cdnapp.cdn.controllers;
 
 
 import internal.cdnapp.cdn.components.RedisService;
 import internal.cdnapp.cdn.entity.CdnUrl;
 import internal.cdnapp.cdn.repository.CdnUrlRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,7 +27,7 @@ public class SearchController {
     }
 
     @PostMapping("/photo/url")
-    public ResponseEntity<String> getPhotoUrl(@RequestParam String name) {
+    public ResponseEntity<Object> getPhotoUrl(@RequestParam String name) {
         LocalDateTime expireDate;
         UUID uuid;
 
@@ -54,4 +52,27 @@ public class SearchController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Failed to find that content");
         }
     }
+
+    @GetMapping("/info/{uuid}")
+    public ResponseEntity<Object> getInfo(@PathVariable UUID uuid) {
+        Map<String, String> objectInfo = new HashMap<>();
+        Optional<CdnUrl> cdnUrl = cdnUrlRepository.findById(uuid);
+
+        if (!cdnUrl.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Failed to find that content");
+        }
+
+        objectInfo.put("uuid", uuid.toString());
+        objectInfo.put("url", cdnUrl.get().getUrl());
+
+        String fullName = cdnUrl.get().getName();
+        String[] parts = fullName.split("\\.");
+        String fileType = parts.length > 1 ? parts[1] : "";
+
+        objectInfo.put("fileType", fileType.toUpperCase());
+        objectInfo.put("fileName", parts[0]);
+
+        return ResponseEntity.ok(objectInfo);
+    }
+
 }

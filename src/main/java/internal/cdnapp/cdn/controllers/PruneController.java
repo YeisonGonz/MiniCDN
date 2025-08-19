@@ -1,4 +1,4 @@
-package internal.cdnapp.cdn;
+package internal.cdnapp.cdn.controllers;
 
 import internal.cdnapp.cdn.components.PhotoStorageService;
 import internal.cdnapp.cdn.entity.CdnUrl;

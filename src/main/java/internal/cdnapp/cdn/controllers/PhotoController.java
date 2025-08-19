@@ -1,12 +1,10 @@
-package internal.cdnapp.cdn;
+package internal.cdnapp.cdn.controllers;
 
 import internal.cdnapp.cdn.components.DomainService;
 import internal.cdnapp.cdn.components.PhotoStorageService;
 import internal.cdnapp.cdn.components.RedisService;
 import internal.cdnapp.cdn.entity.CdnUrl;
 import internal.cdnapp.cdn.repository.CdnUrlRepository;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;

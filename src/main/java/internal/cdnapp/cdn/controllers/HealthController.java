@@ -1,4 +1,4 @@
-package internal.cdnapp.cdn;
+package internal.cdnapp.cdn.controllers;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
